@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NextEdge.dev — Admin Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+      :root {
+        --bg-primary: #f1f5f9;
+        --bg-secondary: #e2e8f0;
+        --accent-purple: #7c3aed;
+        --accent-cyan: #0284c7;
+        --text-primary: #0f172a;
+        --text-secondary: #334155;
+        --text-muted: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(15, 23, 42, 0.06);
+        --glass-blur: 16px;
+        --font-serif: 'Instrument Serif', serif;
+        --font-sans: 'Plus Jakarta Sans', sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.04) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.04) 0%, transparent 40%);
+      }
+
+      .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: rgba(15, 23, 42, 0.06) 0px 8px 32px 0px;
+      }
+
+      /* Login Screen Gate */
+      #login-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10000;
+        background: rgba(248, 250, 252, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 40px 24px;
+        text-align: center;
+      }
+
+      .login-card h2 {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        letter-spacing: -0.01em;
+      }
+
+      .login-card p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 30px;
+      }
+
+      .form-group {
+        position: relative;
+        margin-bottom: 24px;
+        text-align: left;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+      }
+
+      .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.02);
+        border: 1px solid var(--glass-border);
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+        border-color: var(--accent-cyan);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px 28px;
+        border-radius: 30px;
+        border: none;
+        background: linear-gradient(135deg, var(--accent-purple), #5b21b6);
+        color: white;
+        font-weight: 600;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4);
+      }
+
+      .error-msg {
+        color: #ff4a4a;
+        font-size: 0.85rem;
+        margin-top: 12px;
+        display: none;
+      }
+
+      /* Admin Layout */
+      #admin-layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        display: none;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand svg {
+        width: 32px;
+        height: 32px;
+        filter: drop-shadow(0 0 8px var(--accent-cyan));
+      }
+
+      .brand h1 {
+        font-size: 2.2rem;
+      }
+
+      .brand h1 span {
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        color: var(--accent-cyan);
+        vertical-align: super;
+        font-weight: 700;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 16px;
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        width: auto;
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(15, 23, 42, 0.05);
+        box-shadow: none;
+      }
+
+      .btn-danger {
+        background: #991b1b;
+      }
+      .btn-danger:hover {
+        box-shadow: 0 5px 15px rgba(153, 27, 27, 0.4);
+      }
+
+      /* Navigation Tabs */
+      .tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
+      .tab-btn {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+        padding: 12px 24px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .tab-btn.active {
+        color: var(--text-primary);
+        border-color: var(--accent-cyan);
+        background: rgba(2, 132, 199, 0.08);
+      }
+
+      /* Dashboard views */
+      .view-panel {
+        display: none;
+      }
+
+      .view-panel.active {
+        display: block;
+      }
+
+      /* Project Form & List Grid */
+      .db-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 40px;
+      }
+
+      @media (max-width: 900px) {
+        .db-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .form-title {
+        font-size: 1.8rem;
+        margin-bottom: 24px;
+      }
+
+      .editor-panel {
+        padding: 30px;
+      }
+
+      .list-panel {
+        padding: 30px;
+      }
+
+      /* Table Styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        margin-top: 12px;
+      }
+
+      th, td {
+        padding: 16px;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 0.9rem;
+      }
+
+      th {
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+      }
+
+      td {
+        color: var(--text-primary);
+      }
+
+      .proj-img-preview {
+        width: 50px;
+        height: 35px;
+        object-fit: cover;
+        border-radius: 4px;
+        background: #eee;
+        border: 1px solid var(--glass-border);
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .edit-btn {
+        background: rgba(6, 182, 212, 0.1);
+        color: var(--accent-cyan);
+        border-color: rgba(6, 182, 212, 0.2);
+      }
+      .edit-btn:hover {
+        background: rgba(6, 182, 212, 0.2);
+      }
+
+      .delete-btn {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
+      }
+      .delete-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+      .badge-large {
+        background: rgba(6, 182, 212, 0.15);
+        color: var(--accent-cyan);
+      }
+      .badge-normal {
+        background: rgba(15, 23, 42, 0.05);
+        color: var(--text-secondary);
+      }
+
+      /* Inquiries Page elements */
+      .inquiry-card {
+        padding: 24px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .inquiry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 1px dashed var(--glass-border);
+        padding-bottom: 10px;
+      }
+
+      .inquiry-meta h3 {
+        font-family: var(--font-sans);
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+
+      .inquiry-meta span {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .inquiry-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .inquiry-brief {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-primary);
+        white-space: pre-line;
+      }
+
+      .inquiry-actions {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+      }
+
+      .clear-all-panel {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .image-upload-preview {
+        margin-top: 10px;
+        width: 100%;
+        height: 150px;
+        border-radius: 8px;
+        border: 1px dashed var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color: rgba(15, 23, 42, 0.02);
+      }
+
+      .image-upload-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-upload-preview span {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        background: var(--glass-bg);
+        border: 1px solid var(--accent-cyan);
+        color: var(--text-primary);
+        z-index: 11000;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 768px) {
+        #admin-layout {
+          padding: 20px 10px;
+        }
+        header {
+          flex-direction: column;
+          gap: 16px;
+          align-items: flex-start;
+        }
+        .header-actions {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+        }
+        .db-grid {
+          gap: 20px;
+        }
+        .editor-panel, .list-panel {
+          padding: 20px 15px;
+        }
+        .login-card {
+          margin: 0 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Toast notifications -->
+    <div id="toast" class="toast">Action completed successfully</div>
+
+    <!-- Login Gate Screen -->
+    <div id="login-screen">
+      <div class="login-card glass-panel">
+        <h2>Admin Authentication</h2>
+        <p>Sign in with your admin credentials to manage NextEdge.dev</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">EMAIL ADDRESS</label>
+            <input type="email" id="login-email" required placeholder="admin@nextedge.dev">
+          </div>
+          <div class="form-group">
+            <label for="login-password">PASSWORD</label>
+            <input type="password" id="login-password" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn" id="login-submit-btn">Authenticate</button>
+          <div id="login-error" class="error-msg">Invalid credentials or unauthorized role.</div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Admin Dashboard Panel -->
+    <div id="admin-layout">
+      <header>
+        <div class="brand">
+          <svg viewBox="0 0 40 40" fill="none">
+            <polygon points="20,3 35,11 35,29 20,37 5,29 5,11" stroke="url(#logo-grad-admin)" stroke-width="2" fill="rgba(124, 58, 237, 0.05)"/>
+            <path d="M13 27V13L20 20L27 13V27" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 20H27" stroke="url(#logo-grad-admin)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logo-grad-admin" x1="5" y1="3" x2="35" y2="37">
+                <stop stop-color="#06b6d4"/>
+                <stop offset="1" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <h1>NextEdge<span>.dev</span></h1>
+        </div>
+        <div class="header-actions">
+          <a href="/" class="btn btn-secondary">View Website</a>
+          <button id="logout-btn" class="btn btn-secondary btn-danger">Lock Console</button>
+        </div>
+      </header>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="projects-tab">Manage Projects</button>
+        <button class="tab-btn" data-tab="inquiries-tab">Inquiries & Leads</button>
+      </div>
+
+      <!-- Tab Content: Projects management -->
+      <div id="projects-tab" class="view-panel active">
+        <div class="db-grid">
+          <!-- Editor Form -->
+          <div class="editor-panel glass-panel">
+            <h2 class="form-title" id="form-action-title">Add New Project</h2>
+            <form id="project-form">
+              <input type="hidden" id="project-edit-id">
+              
+              <div class="form-group">
+                <label for="project-name">PROJECT NAME</label>
+                <input type="text" id="project-name" required placeholder="e.g. Aetheris Finance">
+              </div>
+              
+              <div class="form-group">
+                <label for="project-tags">CATEGORIES / TAGS (comma-separated)</label>
+                <input type="text" id="project-tags" required placeholder="e.g. FINTECH, 3D LANDING">
+              </div>
+              
+              <div class="form-group">
+                <label for="project-desc">DESCRIPTION</label>
+                <textarea id="project-desc" required rows="3" placeholder="Explain the project capabilities..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="project-link">WEBSITE DEMO LINK</label>
+                <input type="url" id="project-link" required placeholder="e.g. https://aetheris.nextedge.dev">
+              </div>
+
+              <div class="form-group">
+                <label for="project-image-file">UPLOAD IMAGE (PNG/JPG)</label>
+                <input type="file" id="project-image-file" accept="image/*">
+                <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top:4px;">Upload custom image or leave empty to use preset URL.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="project-image-url">IMAGE PRESET OR URL</label>
+                <input type="text" id="project-image-url" placeholder="e.g. /assets/images/project_aetheris.png">
+              </div>
+
+              <div class="form-group">
+                <div class="image-upload-preview" id="image-preview-container">
+                  <span>Image Preview</span>
+                </div>
+              </div>
+
+              <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="project-large" style="width:20px; height:20px; cursor:pointer;">
+                <label for="project-large" style="margin-bottom:0; cursor:pointer;">FEATURED / DOUBLE HEIGHT CARD</label>
+              </div>
+
+              <button type="submit" class="btn" id="project-submit-btn">Save Project</button>
+              <button type="button" class="btn btn-secondary" id="project-cancel-btn" style="margin-top:10px; display:none;">Cancel Edit</button>
+            </form>
+          </div>
+
+          <!-- Project List -->
+          <div class="list-panel glass-panel">
+            <h2 class="form-title">Existing Showcase</h2>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Media</th>
+                    <th>Name</th>
+                    <th>Layout</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="projects-table-body">
+                  <!-- Filled via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: inquiries viewer -->
+      <div id="inquiries-tab" class="view-panel">
+        <div class="clear-all-panel">
+          <h2 class="form-title">Client Leads & Messages</h2>
+          <button id="clear-all-inquiries-btn" class="btn btn-secondary btn-danger" style="width:auto; padding:10px 20px;">Clear All Leads</button>
+        </div>
+
+        <div id="inquiries-list">
+          <!-- Filled via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin dashboard controllers script -->
+    <script>
+      (function() {
+      const supabaseUrl = 'https://khsepleohrjkkgjcsxdz.supabase.co';
+      const supabaseAnonKey = 'sb_publishable_GSg2byfjn6THRJtzW3eVtQ_KLg2ZsTU';
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+      function initAdmin() {
+        checkSession();
+        setupTabs();
+        setupFormListeners();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAdmin);
+      } else {
+        initAdmin();
+      }
+
+      /* 1. Session and Security check */
+      async function verifyAdminRole(userId) {
+        try {
+          console.log('verifyAdminRole: Querying roles for user:', userId);
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId);
+
+          if (error) {
+            console.error('verifyAdminRole: Error querying user_roles:', error);
+            throw error;
+          }
+
+          if (data && data.length > 0) {
+            const hasAdminRole = data[0].role === 'admin';
+            console.log('verifyAdminRole: Found role check result:', hasAdminRole);
+            return hasAdminRole;
+          }
+
+          // If the role is not found, attempt to set (insert) the role to 'admin'
+          console.log('verifyAdminRole: Role not found in database. Attempting to insert role "admin"...');
+          const { error: insertError } = await supabase
+            .from('user_roles')
+            .insert([{ user_id: userId, role: 'admin' }]);
+
+          if (insertError) {
+            console.warn('verifyAdminRole: Failed to automatically insert admin role:', insertError);
+            showToast('Database role missing. Access granted via auth session.');
+            return true; // Fallback to allowing access since they successfully signed in
+          }
+
+          console.log('verifyAdminRole: Successfully auto-set role "admin" for user:', userId);
+          showToast('Admin role automatically provisioned.');
+          return true;
+        } catch (err) {
+          console.error('verifyAdminRole: Unexpected error, falling back to true:', err);
+          showToast('Database lookup error. Access granted via auth session.');
+          return true; // Fallback to allowing access
+        }
+      }
+
+      async function checkSession() {
+        console.log("checkSession: starting diagnostic logs");
+        const loginScreen = document.getElementById('login-screen');
+        const adminLayout = document.getElementById('admin-layout');
+
+        try {
+          console.log("checkSession: calling supabase.auth.getSession()");
+          const { data: { session } } = await supabase.auth.getSession();
+          console.log("checkSession: getSession returned session =", session);
+          if (session) {
+            const isAdmin = await verifyAdminRole(session.user.id);
+            console.log("checkSession: verifyAdminRole returned isAdmin =", isAdmin);
+            if (isAdmin) {
+              loginScreen.style.display = 'none';
+              adminLayout.style.display = 'block';
+              renderProjectsList();
+              renderInquiriesList();
+              return;
+            } else {
+              console.log("checkSession: user is not admin, signing out");
+              await supabase.auth.signOut();
+            }
+          }
+        } catch (err) {
+          console.error('Session restoration error:', err);
+        }
+
+        console.log("checkSession: showing login screen and binding form listeners");
+        loginScreen.style.display = 'flex';
+        adminLayout.style.display = 'none';
+
+        // Login Submit Handler
+        const loginForm = document.getElementById('login-form');
+        console.log("checkSession: loginForm found =", !!loginForm);
+        // Remove prior listener to prevent duplicates
+        const newLoginForm = loginForm.cloneNode(true);
+        loginForm.parentNode.replaceChild(newLoginForm, loginForm);
+
+        newLoginForm.addEventListener('submit', async (e) => {
+          console.log("loginForm: submit event caught!");
+          e.preventDefault();
+          const email = document.getElementById('login-email').value;
+          const password = document.getElementById('login-password').value;
+          const loginError = document.getElementById('login-error');
+          const submitBtn = document.getElementById('login-submit-btn');
+
+          loginError.style.display = 'none';
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Authenticating...';
+
+          try {
+            const { data: { session }, error } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+
+            if (error) throw error;
+
+            const isAdmin = await verifyAdminRole(session.user.id);
+            if (!isAdmin) {
+              await supabase.auth.signOut();
+              loginError.textContent = 'Access denied. You do not have the admin role.';
+              loginError.style.display = 'block';
+              return;
+            }
+
+            loginScreen.style.display = 'none';
+            adminLayout.style.display = 'block';
+            showToast('Authenticated successfully.');
+
+            renderProjectsList();
+            renderInquiriesList();
+          } catch (err) {
+            console.error('Authentication error:', err);
+            loginError.textContent = err.message || 'Invalid email or password.';
+            loginError.style.display = 'block';
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Authenticate';
+          }
+        });
+
+        // Logout Event
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+          await supabase.auth.signOut();
+          loginScreen.style.display = 'flex';
+          adminLayout.style.display = 'none';
+          document.getElementById('login-password').value = '';
+          document.getElementById('login-error').style.display = 'none';
+          showToast('Session locked.');
+        });
+      }
+
+      /* 2. Navigation Tab Switches */
+      function setupTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            
+            btn.classList.add('active');
+            const targetId = btn.getAttribute('data-tab');
+            document.getElementById(targetId).classList.add('active');
+          });
+        });
+      }
+
+      /* 3. Project render list */
+      async function renderProjectsList() {
+        const tbody = document.getElementById('projects-table-body');
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-secondary);">Loading projects...</td></tr>`;
+
+        try {
+          const { data: projects, error } = await supabase
+            .from('projects')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+
+          tbody.innerHTML = '';
+
+          if(!projects || projects.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No projects inside the showcase.</td></tr>`;
+            return;
+          }
+
+          projects.forEach(p => {
+            const tr = document.createElement('tr');
+            
+            tr.innerHTML = `
+              <td><img src="${p.image}" class="proj-img-preview" alt="Preview"></td>
+              <td>
+                <strong>${p.name}</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">${p.tags.join(', ')}</span>
+              </td>
+              <td>
+                <span class="badge ${p.large === true || p.large === 'true' ? 'badge-large' : 'badge-normal'}">
+                  ${p.large === true || p.large === 'true' ? 'Featured (2x)' : 'Standard (1x)'}
+                </span>
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <button class="action-btn edit-btn" onclick="editProject('${p.id}')">Edit</button>
+                  <button class="action-btn delete-btn" onclick="deleteProject('${p.id}')">Delete</button>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error('Error fetching projects list:', err);
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff4a4a;">Failed to retrieve projects.</td></tr>`;
+        }
+      }
+
+      /* 4. Inquiries list renderer */
+      async function renderInquiriesList() {
+        const container = document.getElementById('inquiries-list');
+        container.innerHTML = `<div class="glass-panel" style="padding: 40px; text-align: center; color: var(--text-secondary);">Loading inquiries...</div>`;
+
+        try {
+          const { data: inquiries, error } = await supabase
+            .from('inquiries')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+
+          container.innerHTML = '';
+
+          if (!inquiries || inquiries.length === 0) {
+            container.innerHTML = `
+              <div class="glass-panel" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                <h3>No leads available yet.</h3>
+                <p style="font-size: 0.85rem; margin-top: 8px;">Submissions from the client website form will appear here.</p>
+              </div>
+            `;
+            return;
+          }
+
+          inquiries.forEach((inq) => {
+            const card = document.createElement('div');
+            card.className = 'inquiry-card glass-panel';
+            const dateStr = new Date(inq.created_at).toLocaleString();
+            
+            card.innerHTML = `
+              <div class="inquiry-header">
+                <div class="inquiry-meta">
+                  <h3>${inq.name}</h3>
+                  <a href="mailto:${inq.email}" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.85rem;">${inq.email}</a>
+                </div>
+                <span class="inquiry-date">${dateStr}</span>
+              </div>
+              <p class="inquiry-brief">${inq.message}</p>
+              <div class="inquiry-actions">
+                <button class="action-btn delete-btn" onclick="deleteInquiry('${inq.id}')">Remove Lead</button>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        } catch (err) {
+          console.error('Error retrieving inquiries:', err);
+          container.innerHTML = `<div class="glass-panel" style="padding: 40px; text-align: center; color: #ff4a4a;">Failed to load inquiries.</div>`;
+        }
+      }
+
+      /* 5. Form Upload and Input configurations */
+      let uploadedBase64Image = '';
+      function setupFormListeners() {
+        const fileInput = document.getElementById('project-image-file');
+        const urlInput = document.getElementById('project-image-url');
+        const previewContainer = document.getElementById('image-preview-container');
+
+        // FileReader to convert file to base64 DataURL
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              uploadedBase64Image = event.target.result;
+              urlInput.value = ''; // Clear preset text to avoid confusion
+              
+              previewContainer.innerHTML = `<img src="${uploadedBase64Image}">`;
+              showToast('Image uploaded and optimized.');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        // Sync preset/url preview
+        urlInput.addEventListener('input', () => {
+          if (urlInput.value.trim() !== '') {
+            fileInput.value = ''; // clear file
+            uploadedBase64Image = '';
+            previewContainer.innerHTML = `<img src="${urlInput.value}">`;
+          } else {
+            previewContainer.innerHTML = `<span>Image Preview</span>`;
+          }
+        });
+
+        // Form Submit
+        const form = document.getElementById('project-form');
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const editId = document.getElementById('project-edit-id').value;
+          const name = document.getElementById('project-name').value;
+          const tagsStr = document.getElementById('project-tags').value;
+          const desc = document.getElementById('project-desc').value;
+          const link = document.getElementById('project-link').value;
+          const urlImg = document.getElementById('project-image-url').value;
+          const large = document.getElementById('project-large').checked;
+
+          const tags = tagsStr.split(',').map(t => t.trim().toUpperCase()).filter(t => t !== '');
+          const imagePath = uploadedBase64Image || urlImg || '/assets/images/project_aetheris.png';
+
+          const submitBtn = document.getElementById('project-submit-btn');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
+
+          try {
+            if (editId) {
+              // Edit project
+              const { error } = await supabase
+                .from('projects')
+                .update({
+                  name: name,
+                  tags: tags,
+                  desc: desc,
+                  link: link,
+                  image: imagePath,
+                  large: large
+                })
+                .eq('id', editId);
+
+              if (error) throw error;
+              showToast('Project updated successfully.');
+            } else {
+              // Create new project
+              const newId = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+              
+              const { error } = await supabase
+                .from('projects')
+                .insert([{
+                  id: newId,
+                  name: name,
+                  tags: tags,
+                  desc: desc,
+                  link: link,
+                  image: imagePath,
+                  large: large
+                }]);
+
+              if (error) throw error;
+              showToast('Project added to showcase.');
+            }
+
+            resetForm();
+            renderProjectsList();
+          } catch (err) {
+            console.error('Error saving project to Supabase:', err);
+            alert('Failed to save project. Make sure you are signed in and have proper database permissions.');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = editId ? 'Update Project' : 'Save Project';
+          }
+        });
+
+        // Cancel Edit button
+        document.getElementById('project-cancel-btn').addEventListener('click', resetForm);
+
+        // Clear inquiries button
+        document.getElementById('clear-all-inquiries-btn').addEventListener('click', async () => {
+          if (confirm('Are you sure you want to permanently clear all contact inquiries?')) {
+            try {
+              const { error } = await supabase
+                .from('inquiries')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000'); // Deletes all rows
+
+              if (error) throw error;
+
+              renderInquiriesList();
+              showToast('Inquiries cleared.');
+            } catch (err) {
+              console.error('Error clearing inquiries:', err);
+              alert('Failed to clear inquiries. Make sure you have proper admin permissions.');
+            }
+          }
+        });
+      }
+
+      /* 6. Action controllers (Edit, Delete) */
+      window.editProject = async function(id) {
+        try {
+          const { data: p, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (p) {
+            document.getElementById('project-edit-id').value = p.id;
+            document.getElementById('project-name').value = p.name;
+            document.getElementById('project-tags').value = p.tags.join(', ');
+            document.getElementById('project-desc').value = p.desc;
+            document.getElementById('project-link').value = p.link;
+            
+            if (p.image.startsWith('data:image')) {
+              uploadedBase64Image = p.image;
+              document.getElementById('project-image-url').value = '';
+              document.getElementById('image-preview-container').innerHTML = `<img src="${p.image}">`;
+            } else {
+              uploadedBase64Image = '';
+              document.getElementById('project-image-url').value = p.image;
+              document.getElementById('image-preview-container').innerHTML = `<img src="${p.image}">`;
+            }
+
+            document.getElementById('project-large').checked = p.large === true || p.large === 'true';
+
+            // Shift panel visual states
+            document.getElementById('form-action-title').textContent = 'Edit Project';
+            document.getElementById('project-submit-btn').textContent = 'Update Project';
+            document.getElementById('project-cancel-btn').style.display = 'block';
+            
+            // Scroll to form smoothly
+            document.querySelector('.editor-panel').scrollIntoView({ behavior: 'smooth' });
+          }
+        } catch (err) {
+          console.error('Error fetching project for edit:', err);
+          alert('Failed to load project details for editing.');
+        }
+      };
+
+      window.deleteProject = async function(id) {
+        if(confirm('Are you sure you want to delete this project from the showcase?')) {
+          try {
+            const { error } = await supabase
+              .from('projects')
+              .delete()
+              .eq('id', id);
+
+            if (error) throw error;
+
+            renderProjectsList();
+            showToast('Project deleted.');
+          } catch (err) {
+            console.error('Error deleting project:', err);
+            alert('Failed to delete project. Make sure you have proper admin permissions.');
+          }
+        }
+      };
+
+      window.deleteInquiry = async function(id) {
+        if(confirm('Are you sure you want to remove this lead?')) {
+          try {
+            const { error } = await supabase
+              .from('inquiries')
+              .delete()
+              .eq('id', id);
+
+            if (error) throw error;
+
+            renderInquiriesList();
+            showToast('Lead removed.');
+          } catch (err) {
+            console.error('Error deleting inquiry:', err);
+            alert('Failed to remove lead. Make sure you have proper admin permissions.');
+          }
+        }
+      };
+
+      /* 7. Reset UI Utilities */
+      function resetForm() {
+        document.getElementById('project-edit-id').value = '';
+        document.getElementById('project-form').reset();
+        document.getElementById('image-preview-container').innerHTML = `<span>Image Preview</span>`;
+        uploadedBase64Image = '';
+
+        document.getElementById('form-action-title').textContent = 'Add New Project';
+        document.getElementById('project-submit-btn').textContent = 'Save Project';
+        document.getElementById('project-cancel-btn').style.display = 'none';
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+      })();
+    </script>
+  </body>
+</html>

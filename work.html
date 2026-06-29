@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Explore our dynamic archive of WebGL 3D configurations, interactive GSAP motion pipelines, and creative engineering products developed by NextEdge.dev." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <title>NextEdge.dev</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+
+<body class="work-page">
+
+  <!-- Main Smooth-Scroll Container -->
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <!-- Navigation Bar -->
+      <header class="main-header glass-panel">
+        <div class="header-container">
+          <a href="/" class="logo-link magnetic-btn">
+            <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 28V12L20 22V12" stroke="url(#logo-grad-cyan)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 28L28 18V28" stroke="url(#logo-grad-purple)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <polygon points="20,5 33,13 33,27 20,35 7,27 7,13" stroke="rgba(15, 23, 42, 0.08)" stroke-width="1.5"/>
+              <defs>
+                <linearGradient id="logo-grad-cyan" x1="12" y1="12" x2="20" y2="22">
+                  <stop stop-color="#00f5ff"/>
+                  <stop offset="1" stop-color="#7000ff"/>
+                </linearGradient>
+                <linearGradient id="logo-grad-purple" x1="20" y1="18" x2="28" y2="28">
+                  <stop stop-color="#7000ff"/>
+                  <stop offset="1" stop-color="#00f5ff"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="logo-text">NextEdge<span>.dev</span></span>
+          </a>
+          <nav class="nav-links">
+            <a href="/work.html" class="nav-item magnetic-btn" style="color: var(--text-primary);">Work</a>
+            <a href="/index.html#services" class="nav-item magnetic-btn">Services</a>
+            <a href="/index.html#process" class="nav-item magnetic-btn">Process</a>
+            <a href="/index.html#about" class="nav-item magnetic-btn">Agency</a>
+            <a href="/index.html#testimonials" class="nav-item magnetic-btn">Clients</a>
+            <a href="/index.html#faq" class="nav-item magnetic-btn">FAQ</a>
+          </nav>
+          <a href="/index.html#contact" class="header-cta-btn magnetic-btn">
+            <span>Start Project</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-toggle magnetic-btn" aria-label="Toggle Menu">
+            <span class="line"></span>
+            <span class="line"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Navigation Menu -->
+      <div class="mobile-menu">
+        <div class="mobile-menu-links">
+          <a href="/work.html" class="mobile-nav-item active">Work</a>
+          <a href="/index.html#services" class="mobile-nav-item">Services</a>
+          <a href="/index.html#process" class="mobile-nav-item">Process</a>
+          <a href="/index.html#about" class="mobile-nav-item">Agency</a>
+          <a href="/index.html#testimonials" class="mobile-nav-item">Clients</a>
+          <a href="/index.html#faq" class="mobile-nav-item">FAQ</a>
+          <a href="/index.html#contact" class="mobile-nav-item mobile-cta">Start Project</a>
+        </div>
+      </div>
+
+      <!-- Showcase Showcase Section -->
+      <section class="showcase-section">
+        <div class="container">
+          <div class="showcase-header">
+            <span class="section-tag">SELECTED SHOWCASE</span>
+            <h1 class="section-title reveal-text">Featured Projects</h1>
+            <p class="hero-subtitle" style="margin: 0 auto; text-align: center; max-width: 600px;">
+             Explore a collection of web applications, AI solutions, and software projects built with modern technologies. Each project reflects my commitment to clean code, intuitive design, and creating meaningful digital experiences.
+            </p>
+          </div>
+
+          <!-- Sleek Interactive Filter Buttons -->
+          <div class="showcase-filters-container">
+            <button class="filter-btn active magnetic-btn" data-filter="all">All Work</button>
+            <button class="filter-btn magnetic-btn" data-filter="webgl">3D & WebGL</button>
+            <button class="filter-btn magnetic-btn" data-filter="motion">Motion & JS</button>
+            <button class="filter-btn magnetic-btn" data-filter="fintech">Fintech</button>
+            <button class="filter-btn magnetic-btn" data-filter="real estate">Real Estate</button>
+            <button class="filter-btn magnetic-btn" data-filter="art direction">Art Direction</button>
+          </div>
+
+          <!-- Dynamic Projects Grid (Non-masonry layout for clean filter transitions) -->
+          <div class="showcase-grid" id="showcase-container">
+            <!-- Loaded dynamically from LocalStorage via src/work.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Section -->
+      <footer class="main-footer">
+        <div class="container">
+          <div class="footer-top">
+            <div class="massive-footer-brand">
+
+              <h2 class="massive-footer-logo">NEXTEDGE<span>.DEV</span></h2>
+            </div>
+          </div>
+
+          <div class="footer-middle">
+            <div class="footer-column">
+              <span class="column-title">NAVIGATION</span>
+              <a href="/work.html" class="footer-link magnetic-btn">Work</a>
+              <a href="/index.html#services" class="footer-link magnetic-btn">Services</a>
+              <a href="/index.html#process" class="footer-link magnetic-btn">Process</a>
+              <a href="/index.html#about" class="footer-link magnetic-btn">Agency</a>
+            </div>
+            <div class="footer-column">
+              <span class="column-title">RESOURCES</span>
+              <a href="/index.html#faq" class="footer-link magnetic-btn">FAQ</a>
+              <a href="/index.html#contact" class="footer-link magnetic-btn">Contact</a>
+              <a href="/admin.html" class="footer-link magnetic-btn">Admin Dashboard</a>
+              <a href="#" class="footer-link magnetic-btn">Privacy Policy</a>
+            </div>
+            <div class="footer-column">
+              <span class="column-title">SOCIALS</span>
+              <a href="#" class="footer-link magnetic-btn">Awwwards</a>
+              <a href="#" class="footer-link magnetic-btn">Dribbble</a>
+              <a href="#" class="footer-link magnetic-btn">LinkedIn</a>
+              <a href="#" class="footer-link magnetic-btn">Instagram</a>
+            </div>
+            <div class="footer-column info-column">
+              <span class="column-title">THE HUB</span>
+              <p>Innovative digital products created under deep design specifications. Tokyo & LA.</p>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <p class="copyright">&copy; 2026 NextEdge.dev. All rights reserved. Cinematic engineering.</p>
+            <a href="#" class="back-to-top magnetic-btn">
+              <span>Back to top</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 19V5M5 12l7-7 7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- EdgeBot Floating Chatbot Widget -->
+  <div id="edgebot-widget" class="edgebot-container">
+    <!-- Trigger Button -->
+    <button id="edgebot-trigger" class="edgebot-fab magnetic-btn" aria-label="Open EdgeBot">
+      <div class="edgebot-status-dot"></div>
+      <!-- Simple Chat Icon SVG -->
+      <svg class="edgebot-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <svg class="edgebot-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Chat Panel -->
+    <div id="edgebot-panel" class="edgebot-panel glass-panel">
+      <div class="edgebot-header">
+        <div class="edgebot-header-info">
+          <div class="edgebot-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2zM12 6a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM5 19a7 7 0 0 1 14 0"></path>
+            </svg>
+          </div>
+          <div>
+            <h4>EdgeBot</h4>
+            <span class="edgebot-status"><span class="pulse-dot"></span>Online Assistant</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Messages Screen -->
+      <div id="edgebot-messages" class="edgebot-messages">
+        <!-- Messages loaded dynamically -->
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="edgebot-actions">
+        <button class="edgebot-action-btn" data-action="services">Services</button>
+        <button class="edgebot-action-btn" data-action="timeline">Timeline</button>
+        <button class="edgebot-action-btn" data-action="feedback">Submit Feedback</button>
+      </div>
+
+      <!-- Input Form -->
+      <form id="edgebot-form" class="edgebot-input-area">
+        <input type="text" id="edgebot-input" placeholder="Ask EdgeBot or type feedback..." autocomplete="off" required>
+        <button type="submit" class="edgebot-send-btn" aria-label="Send message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/src/work.js"></script>
+</body>
+
+</html>
